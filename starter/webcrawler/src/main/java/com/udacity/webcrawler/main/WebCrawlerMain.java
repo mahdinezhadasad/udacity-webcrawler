@@ -35,38 +35,26 @@ public final class WebCrawlerMain {
   private void run() throws Exception {
     Guice.createInjector(new WebCrawlerModule(config), new ProfilerModule()).injectMembers(this);
 
-    CrawlResult result = crawler.crawl(config.getStartPages());
-    CrawlResultWriter resultWriter = new CrawlResultWriter(result);
-    // TODO: Write the crawl results to a JSON file (or System.out if the file name is empty)
-    // TODO: Write the profile data to a text file (or System.out if the file name is empty)
-
+    CrawlResult crawlResults = crawler.crawl(config.getStartPages());
+    CrawlResultWriter resultWriter = new CrawlResultWriter(crawlResults);
     if(config.getResultPath().isEmpty() || config.getResultPath().isBlank()){
-      System.out.println("crawler result is blank");
-
+      System.out.println("Crawler Result - ");
       resultWriter.write(new OutputStreamWriter(System.out));
-
     }
     else{
-      System.out.println("Crawler result written to " + config.getResultPath());
+      System.out.println("Crawler Result written to: " + config.getResultPath());
       resultWriter.write(Path.of(config.getResultPath()));
     }
-
-    if(config.getProfileOutputPath().isEmpty()||config.getProfileOutputPath().isEmpty()){
-
-      System.out.println("profiler result writtern to " );
+    if(config.getProfileOutputPath().isEmpty() || config.getProfileOutputPath().isBlank()){
+      System.out.println("Profiler Result - ");
       profiler.writeData(new OutputStreamWriter(System.out));
-
     }
-
     else{
-
-      System.out.println(" Profiler result written to " + config.getProfileOutputPath());
+      System.out.println("Profiler Result written to: " + config.getProfileOutputPath());
       profiler.writeData(Path.of(config.getProfileOutputPath()));
     }
 
-
   }
-
   public static void main(String[] args) throws Exception {
     if (args.length != 1) {
       System.out.println("Usage: WebCrawlerMain [starting-url]");
