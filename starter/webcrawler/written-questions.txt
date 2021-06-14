@@ -13,7 +13,7 @@ Q1. Run the web crawler using the configurations located at src/main/config/writ
 
     Why did the parser take more time when run with ParallelWebCrawler?
 
-    It is because of reflection, reflection need a bit time to do some task because of we do not use directly class or method then it is take time a bit more even in millisecond
+    It is because of Profiler which accumulate the time by parser, reflection need a bit time to do some task because of we do not use directly class or method then it is take time a bit more even in millisecond
     scales.
 
 
@@ -33,6 +33,9 @@ Q2. Your manager ran your crawler on her old personal computer, using the config
         As long as our computer is support multi threads and we do Synchronization  I think parallel web crawler will do better and speedy rather than
         sequential crawler.
 
+        In old machines, there were no multicores, there was a single core, so even though you create thousands of threads, it will always have a single core to run a single thread at a time,
+         so if one thread is running, all other would have to wait for their turn, hence the reason for taking much more time than sequential as only one thread is executing there with no wait time
+
 
 
 
@@ -40,7 +43,7 @@ Q3. Analyze your method profiler through the lens of Aspect Oriented Programming
 
     (a) What cross-cutting concern is being addressed by the com.udacity.webcrawler.profiler.Profiler class?
 
-        Avoiding Time consuming as Idenifier for multiple application which is called and focus on improving the performance.
+       The cross cuting point is which is addressed with profiler class that we are able to record all performance of methods which has profiler annotation.
 
 
     (b) What are the join points of the Profiler in the web crawler program?
