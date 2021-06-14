@@ -51,7 +51,7 @@ final class ParallelWebCrawler implements WebCrawler {
     ConcurrentMap<String, Integer> counts = new ConcurrentHashMap<>();
     ConcurrentSkipListSet<String> visitedUrls = new ConcurrentSkipListSet<>();
     for (String url : startingUrls) {
-      pool.invoke(new InternalCrawler(url, deadline, maxDepth, counts, visitedUrls));
+      pool.invoke(new InternalCrawler(url, deadline, maxDepth, counts, visitedUrls, clock, parserFactory, ignoredUrls));
     }
 
     if (counts.isEmpty()) {
@@ -73,14 +73,23 @@ final class ParallelWebCrawler implements WebCrawler {
     private int maxDepth;
     private ConcurrentMap<String, Integer> counts;
     private ConcurrentSkipListSet<String> visitedUrls;
+    private Clock clock;
+    private PageParserFactory parserFactory;
+    private List<Pattern> ignoredUrls;
 
-    public InternalCrawler(String url, Instant deadline, int maxDepth, ConcurrentMap<String, Integer> counts, ConcurrentSkipListSet<String> visitedUrls) {
+
+    public InternalCrawler(String url, Instant deadline, int maxDepth, ConcurrentMap<String, Integer> counts, ConcurrentSkipListSet<String> visitedUrls,Clock clock, PageParserFactory parserFactory, List<Pattern> ignoredUrls) {
       this.url = url;
       this.deadline = deadline;
       this.maxDepth = maxDepth;
       this.counts = counts;
       this.visitedUrls = visitedUrls;
+      this.clock = clock;
+      this.parserFactory = parserFactory;
+      this.ignoredUrls = ignoredUrls;
     }
+
+
 
     @Override
     protected Boolean compute() {
@@ -103,7 +112,7 @@ final class ParallelWebCrawler implements WebCrawler {
       }
       List<InternalCrawler> subtasks = new ArrayList<>();
       for (String link : result.getLinks()) {
-        subtasks.add(new InternalCrawler(link, deadline, maxDepth -1, counts, visitedUrls));
+        subtasks.add(new InternalCrawler(link, deadline, maxDepth -1, counts, visitedUrls,clock, parserFactory, ignoredUrls));
       }
       invokeAll(subtasks);
       return true;
